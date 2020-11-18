@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class SeedingRequest {
@@ -11,10 +13,12 @@ public class SeedingRequest {
     /**
      * 뿌리기 요청 금액
      */
-    private final long amount;
+    @NotNull
+    final private long amount;
 
     /**
      * 받을 수 있는 사람 수
      */
-    private final int receiveNumber;
+    @NotNull
+    final private int receiveNumber;
 }
