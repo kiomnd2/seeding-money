@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -32,8 +33,9 @@ public class Token {
     /**
      * 토큰 발행 일
      */
+    @CreatedDate
     @Column(name = "issued_at", nullable = false)
-    private LocalDateTime issuedAt;
+    private final LocalDateTime issuedAt = LocalDateTime.now();
 
     @Builder
     protected Token(String value, TokenStatus status) {

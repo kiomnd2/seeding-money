@@ -5,6 +5,7 @@ import com.kakaopay.seedingmoeny.domain.enums.TokenStatus;
 import com.kakaopay.seedingmoeny.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
@@ -22,8 +23,8 @@ public class TokenService {
         if (tokenRepository.existsById(randomWord)) {
             randomWord = this.generateRandomWord(); // 이미 있으면 한번 더
         }
-
-        return Token.builder().value(randomWord).status(TokenStatus.CREATED).build();
+        Token token = Token.builder().value(randomWord).status(TokenStatus.CREATED).build();
+        return tokenRepository.save(token);
     }
 
 

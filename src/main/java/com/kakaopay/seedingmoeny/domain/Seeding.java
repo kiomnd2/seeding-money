@@ -21,7 +21,7 @@ public class Seeding {
     /**
      * 토큰 값
      */
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "token_id")
     private Token token;
 
