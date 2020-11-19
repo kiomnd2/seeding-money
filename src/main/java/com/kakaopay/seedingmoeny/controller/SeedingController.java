@@ -2,6 +2,7 @@ package com.kakaopay.seedingmoeny.controller;
 
 import com.kakaopay.seedingmoeny.domain.Token;
 import com.kakaopay.seedingmoeny.dto.SeedingDto;
+import com.kakaopay.seedingmoeny.exception.InvalidAccessException;
 import com.kakaopay.seedingmoeny.service.SeedingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -22,8 +23,9 @@ public class SeedingController {
                                                    @RequestBody @Valid SeedingRequest request) {
         // 뿌리는 금액이 사람수보다 적을 순 없다..
         if (request.getAmount().intValue() < request.getReceiverNumber()) {
-//            throw new InvalidRequestException();
+            throw new InvalidAccessException();
         }
+
 
         SeedingDto seedingDto = seedingService.seeding(roomId, userId, request);
 
