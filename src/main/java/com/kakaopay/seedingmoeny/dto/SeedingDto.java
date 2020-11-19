@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class SeedingDto {
 
     private final String token;
+
     private final LocalDateTime issuedAt;
 
 }

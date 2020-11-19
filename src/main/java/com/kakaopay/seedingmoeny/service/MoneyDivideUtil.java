@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Random;
 
 @Component
-public class MoneyDividerComponent {
+public class MoneyDivideUtil {
 
     /**
      * 금액을 분배하여 리스트로 리턴합니다.

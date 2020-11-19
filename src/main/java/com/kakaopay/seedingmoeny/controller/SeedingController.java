@@ -17,6 +17,13 @@ public class SeedingController {
 
     private final SeedingService seedingService;
 
+    /**
+     * 방에 돈을 뿌립니다.
+     * @param roomId 방의 고유 아이디
+     * @param userId 사용자 아이디
+     * @param request 요청값 { amount, receiverNumber }
+     * @return
+     */
     @PostMapping(value = "/api/seeding", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SeedingResponse<SeedingDto>> seeding(@RequestHeader("X-ROOM-ID") String roomId,
                                                    @RequestHeader("X-USER-ID") long userId,
@@ -26,10 +33,25 @@ public class SeedingController {
             throw new InvalidAccessException();
         }
 
-
         SeedingDto seedingDto = seedingService.seeding(roomId, userId, request);
 
         return ResponseEntity.ok().body(SeedingResponse.success(seedingDto));
+    }
+
+    /**
+     *
+     * @param roomId
+     * @param userId
+     * @param token
+     * @return
+     */
+    @GetMapping(value = "/api/harvesting/{token}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SeedingResponse> harvesting(@RequestHeader("X-ROOM-ID") String roomId,
+                                                        @RequestHeader("X-USER-ID") long userId,
+                                                        @PathVariable("token") String token) {
+
+
+        return ResponseEntity.ok().build();
     }
 
 }

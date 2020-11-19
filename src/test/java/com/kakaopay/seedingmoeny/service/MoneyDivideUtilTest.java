@@ -1,12 +1,12 @@
 package com.kakaopay.seedingmoeny.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,22 +14,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class MoneyDividerComponentTest {
+class MoneyDivideUtilTest {
 
     @Autowired
-    MoneyDividerComponent moneyDividerComponent;
+    MoneyDivideUtil divider;
 
     @Test
     void divideTest() {
         int receiveNumber = 3;
-        BigDecimal amount = BigDecimal.valueOf(1000);
+        BigDecimal amount = BigDecimal.valueOf(1000).setScale(2, RoundingMode.CEILING);
         SeedingRequest seedingRequest = new SeedingRequest( amount, receiveNumber);
-        List<BigDecimal> divide = moneyDividerComponent.divide(seedingRequest);
+        List<BigDecimal> divide = divider.divide(seedingRequest);
 
 
-        BigDecimal bigDecimal = divide.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        BigDecimal sum = divide.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
 
         assertThat(divide.size()).isEqualTo(receiveNumber);
-        assertThat(bigDecimal).isEqualByComparingTo(amount);
+        assertThat(sum).isEqualTo(amount);
     }
 }

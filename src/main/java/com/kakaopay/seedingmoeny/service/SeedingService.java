@@ -25,15 +25,15 @@ public class SeedingService {
 
     final private SeedingRepository seedingRepository;
 
-    final private MoneyDividerComponent divider;
+    final private MoneyDivideUtil divider;
     /**
      *
-     * @param roomId : 방 코드
+     * @param roomId : 방의 고유 아이디
      * @param userId : 사용자 아이디
      * @param request : 요청값 { amount, receiverNumber }
      * @return SeedingDto 토큰값과 발행일
      */
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public SeedingDto seeding(String roomId, long userId, SeedingRequest request) {
 
         // 토큰 생성

@@ -42,4 +42,14 @@ public class Token {
         this.value = value;
         this.status = status;
     }
+
+    /**
+     * 토큰의 기한이 만료 되었는지 체크합니다
+     *
+     * @return 만료 여부
+     */
+    public boolean isExpired() {
+        return status.equals(TokenStatus.EXPIRED) || issuedAt.isBefore(LocalDateTime.now().minusMinutes(10));
+    }
+
 }
