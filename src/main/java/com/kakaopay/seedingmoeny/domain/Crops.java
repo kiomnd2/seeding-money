@@ -27,13 +27,13 @@ public class Crops {
     /**
      * 뿌린 금액을 받은 사용자 아이디
      */
-    @Column(name = "user_id")
+    @Column(name = "receiver_id")
     private long receiveUserId;
 
     /**
      * 뿌린 금액을 받은 양
      */
-    @Column(name = "amount")
+    @Column(name = "receive_amount")
     private BigDecimal receiveAmount;
 
     /**
@@ -45,8 +45,8 @@ public class Crops {
     /**
      * 돈을 받은 시간
      */
-    @Column(name = "picked_at")
-    private LocalDateTime pickedAt;
+    @Column(name = "harvest_at")
+    private LocalDateTime harvestAt;
 
     /**
      * 동시적 수정을 방지하기 위한 낙관적 업데이트
@@ -55,11 +55,12 @@ public class Crops {
     private int version;
 
     @Builder
-    public Crops(Seeding seeding, long receivedUserId, BigDecimal receiveAmount, boolean received) {
+    public Crops(Seeding seeding, long receivedUserId, BigDecimal receiveAmount, boolean received, LocalDateTime harvestAt) {
         this.seeding = seeding;
         this.receiveUserId = receivedUserId;
         this.receiveAmount = receiveAmount;
         this.received = received;
+        this.harvestAt = harvestAt;
     }
 
 }

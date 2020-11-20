@@ -3,15 +3,19 @@ package com.kakaopay.seedingmoeny.service;
 import com.kakaopay.seedingmoeny.controller.SeedingRequest;
 import com.kakaopay.seedingmoeny.domain.Crops;
 import com.kakaopay.seedingmoeny.domain.Seeding;
-import com.kakaopay.seedingmoeny.domain.Token;
+import com.kakaopay.seedingmoeny.domain.SeedingSession;
+import com.kakaopay.seedingmoeny.domain.enums.SeedingStatus;
 import com.kakaopay.seedingmoeny.dto.SeedingDto;
 import com.kakaopay.seedingmoeny.repository.CropsRepository;
 import com.kakaopay.seedingmoeny.repository.SeedingRepository;
+import com.kakaopay.seedingmoeny.util.MoneyDivideUtil;
+import com.kakaopay.seedingmoeny.util.TokenGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 
 @Slf4j
@@ -19,13 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SeedingService {
 
-    final private TokenService tokenService;
+    private final TokenGenerator tokenGenerator;
 
-    final private CropsRepository cropsRepository;
+    private final CropsRepository cropsRepository;
 
-    final private SeedingRepository seedingRepository;
+    private final SeedingRepository seedingRepository;
 
-    final private MoneyDivideUtil divider;
+    private final SeedingSessionService seedingSessionService;
+
+    private final MoneyDivideUtil divider;
     /**
      *
      * @param roomId : 방의 고유 아이디
@@ -36,23 +42,28 @@ public class SeedingService {
     @Transactional
     public SeedingDto seeding(String roomId, long userId, SeedingRequest request) {
 
-        // 토큰 생성
-        Token token = tokenService.createToken();
+        // 최초 세션 생성
+        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
 
-        // 뿌리기 정보 입력
+        // 토큰 생성
+        String token = tokenGenerator.createToken();
+
         Seeding seeding = Seeding.builder()
+                .token(token)
                 .userId(userId)
-                .roomId(roomId)
                 .amount(request.getAmount())
-                .token(token).build();
+                .seedingSession(seedingSession)
+                .seedingAt(LocalDateTime.now())
+                .status(SeedingStatus.CREATED)
+                .build();
 
         seedingRepository.save(seeding);
 
         // 금액을 나누어 저장
         divideCrops(request, seeding);
 
-        return SeedingDto.builder().token(seeding.getToken().getValue())
-                .issuedAt(seeding.getToken().getIssuedAt()).build();
+        return SeedingDto.builder().token(seeding.getToken())
+                .issuedAt(seeding.getSeedingAt()).build();
     }
 
     /**
@@ -68,6 +79,7 @@ public class SeedingService {
                     .seeding(seeding)
                     .received(false)
                     .receiveAmount(i)
+                    .harvestAt(LocalDateTime.now())
                     .build();
             cropsRepository.save(crops);
         });

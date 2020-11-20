@@ -1,22 +1,21 @@
 package com.kakaopay.seedingmoeny.service;
 
-import com.kakaopay.seedingmoeny.domain.Token;
+import com.kakaopay.seedingmoeny.domain.SeedingSession;
 import com.kakaopay.seedingmoeny.dto.CropsDto;
+import com.kakaopay.seedingmoeny.repository.CropsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
 public class CropsService {
 
-    private final TokenService tokenService;
+    private final CropsRepository cropsRepository;
 
+    private final SeedingSessionService seedingSessionService;
 
-    @Transactional(readOnly = true)
-    public CropsDto harvestMoney(String roomId, long userId, String token) {
-
-        Token t = tokenService.getToken(token);
+    public CropsDto harvesting(String roomId, long userId, String token) {
 
 
     }

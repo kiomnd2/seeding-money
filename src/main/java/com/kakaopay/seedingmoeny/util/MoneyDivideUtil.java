@@ -1,4 +1,4 @@
-package com.kakaopay.seedingmoeny.service;
+package com.kakaopay.seedingmoeny.util;
 
 import com.kakaopay.seedingmoeny.controller.SeedingRequest;
 import org.springframework.stereotype.Component;

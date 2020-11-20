@@ -1,6 +1,5 @@
 package com.kakaopay.seedingmoeny.dto;
 
-import com.kakaopay.seedingmoeny.domain.Token;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

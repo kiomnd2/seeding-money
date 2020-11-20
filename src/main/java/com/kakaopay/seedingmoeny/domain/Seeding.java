@@ -1,6 +1,7 @@
 package com.kakaopay.seedingmoeny.domain;
 
 
+import com.kakaopay.seedingmoeny.domain.enums.SeedingStatus;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,8 +9,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-@Table(name = "SEEDING")
+@Table(name = "SEEDINGS")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -21,21 +23,21 @@ public class Seeding {
     /**
      * 토큰 값
      */
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "token_id")
-    private Token token;
+    @Column(name = "token_id")
+    private String token;
 
     /**
-     * 돈을 뿌린 사용자
+     * 주최자
      */
     @Column(name = "user_id")
     private long userId;
 
     /**
-     * 돈을 뿌린 방 번호
+     * 세션 고유값
      */
-    @Column(name = "room_id")
-    private String roomId;
+    @JoinColumn(name = "seeding_session")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private SeedingSession seedingSession;
 
     /**
      * 뿌린 돈의 양
@@ -43,13 +45,27 @@ public class Seeding {
     @Column(name = "amount")
     private BigDecimal amount;
 
+    /**
+     * 현재 뿌리기 상태
+     */
+    @Column(name = "seeding_status")
+    private SeedingStatus status;
+
+    /**
+     * 뿌린 일자
+     */
+    @Column(name = "seeding_at")
+    private LocalDateTime seedingAt;
+
 
     @Builder
-    public Seeding(Token token, long userId, String roomId, BigDecimal amount) {
+    public Seeding(String token, long userId, SeedingSession seedingSession, BigDecimal amount, SeedingStatus status, LocalDateTime seedingAt) {
         this.token = token;
         this.userId = userId;
-        this.roomId = roomId;
+        this.seedingSession = seedingSession;
         this.amount = amount;
+        this.status = status;
+        this.seedingAt = seedingAt;
     }
 
 

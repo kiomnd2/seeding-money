@@ -2,12 +2,12 @@ package com.kakaopay.seedingmoeny.service;
 
 import com.kakaopay.seedingmoeny.domain.Crops;
 import com.kakaopay.seedingmoeny.domain.Seeding;
-import com.kakaopay.seedingmoeny.domain.Token;
+import com.kakaopay.seedingmoeny.domain.SeedingSession;
+import com.kakaopay.seedingmoeny.domain.enums.SeedingStatus;
 import com.kakaopay.seedingmoeny.dto.SeedingDto;
 import com.kakaopay.seedingmoeny.repository.CropsRepository;
 import com.kakaopay.seedingmoeny.repository.SeedingRepository;
-import com.kakaopay.seedingmoeny.repository.TokenRepository;
-import org.assertj.core.api.Assertions;
+import com.kakaopay.seedingmoeny.util.TokenGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -30,16 +29,16 @@ class SeedingServiceTest {
     SeedingService seedingService;
 
     @Autowired
-    TokenRepository tokenRepository;
-
-    @Autowired
     CropsRepository cropsRepository;
 
     @Autowired
     SeedingRepository seedingRepository;
 
     @Autowired
-    TokenService tokenService;
+    SeedingSessionService seedingSessionService;
+
+    @Autowired
+    TokenGenerator tokenGenerator;
 
     @Test
     void seedingTest() {
@@ -51,17 +50,18 @@ class SeedingServiceTest {
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
         SeedingDto seeding = seedingService.seeding(roomId, userId, seedingRequest);
 
-        Token token = tokenRepository.findById(seeding.getToken()).orElse(null);
-        Optional<Seeding> byTokenAndRoomId = seedingRepository.findByTokenAndRoomId(token, roomId);
+        String token = seeding.getToken();
 
-        Seeding result = byTokenAndRoomId.orElse(null);
+        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
+
+        Seeding result = seedingRepository.findByTokenAndSeedingSession(token, seedingSession).orElse(null);
+
 
         assertThat(result).isNotNull();
-        assertThat(token).isNotNull();
-        assertThat(result.getToken().getValue()).isEqualTo(token.getValue());
-        assertThat(result.getToken().getIssuedAt()).isEqualTo(token.getIssuedAt());
+        assertThat(result.getToken()).isEqualTo(token);
+        assertThat(result.getSeedingAt()).isEqualTo(seeding.getIssuedAt());
         assertThat(result.getAmount()).isEqualTo(amount);
-        assertThat(result.getRoomId()).isEqualTo(roomId);
+        assertThat(seedingSession.getRoomId()).isEqualTo(roomId);
         assertThat(result.getUserId()).isEqualTo(userId);
     }
 
@@ -75,14 +75,21 @@ class SeedingServiceTest {
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
         // 토큰 생성
-        Token token = tokenService.createToken();
+
+        String token = tokenGenerator.createToken();
+
+        // 세션 생성
+        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
 
         // 뿌리기정보 생성 후 저장
         Seeding seeding = Seeding.builder()
                 .token(token)
                 .amount(amount)
                 .userId(userId)
-                .roomId(roomId).build();
+                .seedingSession(seedingSession)
+                .status(SeedingStatus.CREATED)
+                .seedingAt(LocalDateTime.now())
+                .build();
 
         Seeding persistedSeeding = seedingRepository.save(seeding);
 

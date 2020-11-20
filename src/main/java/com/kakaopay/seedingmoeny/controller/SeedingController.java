@@ -1,6 +1,6 @@
 package com.kakaopay.seedingmoeny.controller;
 
-import com.kakaopay.seedingmoeny.domain.Token;
+import com.kakaopay.seedingmoeny.dto.CropsDto;
 import com.kakaopay.seedingmoeny.dto.SeedingDto;
 import com.kakaopay.seedingmoeny.exception.InvalidAccessException;
 import com.kakaopay.seedingmoeny.service.SeedingService;
@@ -39,16 +39,17 @@ public class SeedingController {
     }
 
     /**
-     *
+     * 뿌려진 돈을 수확합니다
      * @param roomId
      * @param userId
      * @param token
      * @return
      */
     @GetMapping(value = "/api/harvesting/{token}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SeedingResponse> harvesting(@RequestHeader("X-ROOM-ID") String roomId,
-                                                        @RequestHeader("X-USER-ID") long userId,
-                                                        @PathVariable("token") String token) {
+    public ResponseEntity<SeedingResponse<CropsDto>> harvesting(@RequestHeader("X-ROOM-ID") String roomId,
+                                                                @RequestHeader("X-USER-ID") long userId,
+                                                                @PathVariable("token") String token) {
+
 
 
         return ResponseEntity.ok().build();

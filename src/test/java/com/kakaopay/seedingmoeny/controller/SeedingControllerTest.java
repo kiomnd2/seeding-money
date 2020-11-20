@@ -1,19 +1,16 @@
 package com.kakaopay.seedingmoeny.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaopay.seedingmoeny.code.Codes;
 import com.kakaopay.seedingmoeny.exception.InvalidAccessException;
 import com.kakaopay.seedingmoeny.repository.CropsRepository;
 import com.kakaopay.seedingmoeny.repository.SeedingRepository;
-import com.kakaopay.seedingmoeny.repository.TokenRepository;
 import com.kakaopay.seedingmoeny.service.SeedingRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,8 +34,6 @@ class SeedingControllerTest {
     @Autowired
     ObjectMapper mapper;
 
-    @Autowired
-    TokenRepository tokenRepository;
 
     @Autowired
     CropsRepository cropsRepository;
@@ -51,7 +46,6 @@ class SeedingControllerTest {
     void beforeEach() {
         cropsRepository.deleteAll();
         seedingRepository.deleteAll();
-        tokenRepository.deleteAll();
     }
 
 
