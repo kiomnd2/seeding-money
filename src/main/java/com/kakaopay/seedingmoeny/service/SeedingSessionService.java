@@ -30,6 +30,7 @@ public class SeedingSessionService {
     }
 
 
+    @Transactional(readOnly = true)
     public SeedingSession getSeedingSession(String roomId) {
         return sessionRepository.findById(roomId).orElseThrow(InvalidAccessException::new);
     }

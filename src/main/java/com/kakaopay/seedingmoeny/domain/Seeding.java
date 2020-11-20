@@ -69,5 +69,10 @@ public class Seeding {
     }
 
 
+    public boolean isOwner(long userId) {
+        return this.userId == userId;
+    }
+
+
 
 }

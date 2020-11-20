@@ -1,21 +1,32 @@
 package com.kakaopay.seedingmoeny.controller;
 
+import com.kakaopay.seedingmoeny.domain.Crops;
+import com.kakaopay.seedingmoeny.domain.Seeding;
+import com.kakaopay.seedingmoeny.domain.SeedingSession;
 import com.kakaopay.seedingmoeny.dto.CropsDto;
 import com.kakaopay.seedingmoeny.dto.SeedingDto;
 import com.kakaopay.seedingmoeny.exception.InvalidAccessException;
+import com.kakaopay.seedingmoeny.service.CropsService;
 import com.kakaopay.seedingmoeny.service.SeedingService;
+import com.kakaopay.seedingmoeny.service.SeedingSessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
 public class SeedingController {
 
     private final SeedingService seedingService;
+
+    private final CropsService cropsService;
+
+    private final SeedingSessionService seedingSessionService;
+
 
     /**
      * 방에 돈을 뿌립니다.
@@ -33,7 +44,17 @@ public class SeedingController {
             throw new InvalidAccessException();
         }
 
-        SeedingDto seedingDto = seedingService.seeding(roomId, userId, request);
+        // 최초 뿌리기 세션정보를 가져옴
+        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
+
+        // 뿌리기 정보 생성
+        Seeding seeding = seedingService.seeding(userId, seedingSession, request);
+
+        // 수령할 금액 분배
+        cropsService.divideCrops(request, seeding);
+
+        // 사용자에게 돌려줄 DTO 생성
+        SeedingDto seedingDto = SeedingDto.builder().token(seeding.getToken()).issuedAt(LocalDateTime.now()).build();
 
         return ResponseEntity.ok().body(SeedingResponse.success(seedingDto));
     }
@@ -49,10 +70,21 @@ public class SeedingController {
     public ResponseEntity<SeedingResponse<CropsDto>> harvesting(@RequestHeader("X-ROOM-ID") String roomId,
                                                                 @RequestHeader("X-USER-ID") long userId,
                                                                 @PathVariable("token") String token) {
+        // 사용자, 세션, 토큰에 대한 정합성검사
+        SeedingSession seedingSession = seedingSessionService.getSeedingSession(roomId);
 
 
+        Seeding seeding = seedingService.checkSeeding(userId, seedingSession, token);
 
-        return ResponseEntity.ok().build();
+        Crops harvestedCrops = cropsService.harvesting(seeding, userId);
+
+        CropsDto cropsDto = CropsDto.builder()
+                .userId(userId)
+                .harvestAt(harvestedCrops.getHarvestAt())
+                .receiveAmount(harvestedCrops.getReceiveAmount())
+                .build();
+
+        return ResponseEntity.ok().body(SeedingResponse.success(cropsDto));
     }
 
 }

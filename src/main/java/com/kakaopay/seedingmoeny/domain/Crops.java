@@ -63,4 +63,11 @@ public class Crops {
         this.harvestAt = harvestAt;
     }
 
+
+    public void assign(long userId) {
+        this.receiveUserId = userId;
+        this.harvestAt = LocalDateTime.now();
+        this.received = true;
+    }
+
 }

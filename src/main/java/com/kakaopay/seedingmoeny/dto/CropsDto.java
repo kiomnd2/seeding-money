@@ -25,5 +25,5 @@ public class CropsDto {
     /**
      * 돈을 수령한 일시
      */
-    private final LocalDateTime pickedAt;
+    private final LocalDateTime harvestAt;
 }

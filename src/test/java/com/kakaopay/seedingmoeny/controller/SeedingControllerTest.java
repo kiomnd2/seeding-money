@@ -46,6 +46,7 @@ class SeedingControllerTest {
     void beforeEach() {
         cropsRepository.deleteAll();
         seedingRepository.deleteAll();
+        seedingRepository.deleteAll();
     }
 
 
