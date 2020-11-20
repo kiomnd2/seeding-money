@@ -6,6 +6,8 @@ import com.kakaopay.seedingmoeny.domain.Seeding;
 import com.kakaopay.seedingmoeny.domain.SeedingSession;
 import com.kakaopay.seedingmoeny.domain.enums.SeedingStatus;
 import com.kakaopay.seedingmoeny.dto.SeedingDto;
+import com.kakaopay.seedingmoeny.exception.ExpiredCropsException;
+import com.kakaopay.seedingmoeny.exception.ExpiredSearchDateException;
 import com.kakaopay.seedingmoeny.exception.InvalidAccessException;
 import com.kakaopay.seedingmoeny.exception.SelfCropsMoneyException;
 import com.kakaopay.seedingmoeny.repository.CropsRepository;
@@ -56,16 +58,42 @@ public class SeedingService {
         return seedingRepository.save(seeding);
     }
 
+
+    public Seeding checkInquire(long userId, SeedingSession seedingSession, String token) {
+
+        Seeding seeding = getSeeding(seedingSession, token);
+
+        if (!seeding.canSearch()) {
+            throw new ExpiredSearchDateException();
+        }
+
+        if (!seeding.isOwner(userId)) {
+            throw new InvalidAccessException();
+        }
+
+        return seeding;
+    }
+
     @Transactional(readOnly = true)
     public Seeding checkSeeding(long userId, SeedingSession seedingSession, String token) {
 
-        Seeding seeding = seedingRepository.findByTokenAndSeedingSession(token, seedingSession)
-                .orElseThrow(InvalidAccessException::new);
+        Seeding seeding = getSeeding(seedingSession, token);
+
+        // 10분 초과인지 확인
+        if (seeding.isExpired()) {
+            throw new ExpiredCropsException();
+        }
 
         if (seeding.isOwner(userId)) {
             throw new SelfCropsMoneyException();
         }
+
         return seeding;
+    }
+
+    private Seeding getSeeding(SeedingSession seedingSession, String token) {
+        return seedingRepository.findByTokenAndSeedingSession(token, seedingSession)
+                .orElseThrow(InvalidAccessException::new);
     }
 
 }

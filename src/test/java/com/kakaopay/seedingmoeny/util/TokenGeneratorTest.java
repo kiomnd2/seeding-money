@@ -1,14 +1,10 @@
 package com.kakaopay.seedingmoeny.util;
 
-import com.kakaopay.seedingmoeny.util.TokenGenerator;
-import org.junit.jupiter.api.BeforeEach;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -19,8 +15,7 @@ class TokenGeneratorTest {
 
     @Test
     void createToken() {
-
+        String token = tokenGenerator.createToken();
+        Assertions.assertThat(token.length()).isEqualTo(3);
     }
-
-
 }

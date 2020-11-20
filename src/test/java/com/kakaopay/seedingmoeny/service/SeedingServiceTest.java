@@ -111,7 +111,7 @@ class SeedingServiceTest {
 
 
     @Test
-    void checkSeedingIsOwnerTest() throws Exception {
+    void checkSeedingExceptionTest() throws Exception {
 
         long userId =333;
         int receiverNumber = 3;

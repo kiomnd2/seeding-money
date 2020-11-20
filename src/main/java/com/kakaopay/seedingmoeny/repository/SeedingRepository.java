@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface SeedingRepository extends JpaRepository<Seeding, Long> {
     Optional<Seeding> findByTokenAndSeedingSession(String token, SeedingSession seedingSession);
+
 }

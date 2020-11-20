@@ -1,7 +1,6 @@
 package com.kakaopay.seedingmoeny.util;
 
 import com.kakaopay.seedingmoeny.service.SeedingRequest;
-import com.kakaopay.seedingmoeny.util.MoneyDivideUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

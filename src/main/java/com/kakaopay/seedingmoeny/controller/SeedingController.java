@@ -4,6 +4,7 @@ import com.kakaopay.seedingmoeny.domain.Crops;
 import com.kakaopay.seedingmoeny.domain.Seeding;
 import com.kakaopay.seedingmoeny.domain.SeedingSession;
 import com.kakaopay.seedingmoeny.dto.CropsDto;
+import com.kakaopay.seedingmoeny.dto.InquireDto;
 import com.kakaopay.seedingmoeny.dto.SeedingDto;
 import com.kakaopay.seedingmoeny.exception.InvalidAccessException;
 import com.kakaopay.seedingmoeny.service.CropsService;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -66,13 +69,12 @@ public class SeedingController {
      * @param token
      * @return
      */
-    @GetMapping(value = "/api/harvesting/{token}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/api/harvest/{token}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SeedingResponse<CropsDto>> harvesting(@RequestHeader("X-ROOM-ID") String roomId,
                                                                 @RequestHeader("X-USER-ID") long userId,
                                                                 @PathVariable("token") String token) {
         // 사용자, 세션, 토큰에 대한 정합성검사
         SeedingSession seedingSession = seedingSessionService.getSeedingSession(roomId);
-
 
         Seeding seeding = seedingService.checkSeeding(userId, seedingSession, token);
 
@@ -86,5 +88,37 @@ public class SeedingController {
 
         return ResponseEntity.ok().body(SeedingResponse.success(cropsDto));
     }
+
+    @GetMapping(value = "/api/inquire/{token}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SeedingResponse<InquireDto>> inquire(@RequestHeader("X-ROOM-ID") String roomId,
+                                                               @RequestHeader("X-USER-ID") long userId,
+                                                               @PathVariable("token") String token) {
+
+        // 사용자, 세션, 토큰에 대한 정합성검사
+        SeedingSession seedingSession = seedingSessionService.getSeedingSession(roomId);
+
+        // 정합성 검사
+        Seeding seeding = seedingService.checkInquire(userId, seedingSession, token);
+
+        // 현재 조회 리스트
+        List<CropsDto> cropsDtos = seeding.getHarvestedList().stream().map(v -> CropsDto.builder()
+                .userId(v.getReceiveUserId())
+                .receiveAmount(v.getReceiveAmount())
+                .harvestAt(v.getHarvestAt()).build()).collect(Collectors.toList());
+
+
+        InquireDto inquireDto = InquireDto.builder()
+                .userId(seeding.getUserId())
+                .roomId(seedingSession.getRoomId())
+                .seedingAt(seeding.getSeedingAt())
+                .cropsList(cropsDtos)
+                .totalAmount(seeding.getAmount())
+                .usingAmount(seeding.getUsingAmount())
+                .build();
+
+
+        return ResponseEntity.ok().body(SeedingResponse.success(inquireDto));
+    }
+
 
 }

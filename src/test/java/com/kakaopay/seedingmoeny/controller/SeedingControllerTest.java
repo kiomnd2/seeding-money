@@ -1,11 +1,20 @@
 package com.kakaopay.seedingmoeny.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaopay.seedingmoeny.code.Codes;
+import com.kakaopay.seedingmoeny.domain.Crops;
+import com.kakaopay.seedingmoeny.domain.Seeding;
+import com.kakaopay.seedingmoeny.domain.SeedingSession;
 import com.kakaopay.seedingmoeny.exception.InvalidAccessException;
 import com.kakaopay.seedingmoeny.repository.CropsRepository;
 import com.kakaopay.seedingmoeny.repository.SeedingRepository;
+import com.kakaopay.seedingmoeny.service.CropsService;
 import com.kakaopay.seedingmoeny.service.SeedingRequest;
+import com.kakaopay.seedingmoeny.service.SeedingService;
+import com.kakaopay.seedingmoeny.service.SeedingSessionService;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +25,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,6 +51,15 @@ class SeedingControllerTest {
 
     @Autowired
     SeedingRepository seedingRepository;
+
+    @Autowired
+    SeedingSessionService seedingSessionService;
+
+    @Autowired
+    SeedingService seedingService;
+
+    @Autowired
+    CropsService cropsService;
 
 
     @BeforeEach
@@ -122,5 +142,127 @@ class SeedingControllerTest {
                 .andExpect(jsonPath("body").value(new InvalidAccessException().getMessage()));
     }
 
+
+    @Test
+    void request_crops_return_money_success() throws Exception {
+        String roomId ="123";
+        BigDecimal amount = BigDecimal.valueOf(1000).setScale(2, RoundingMode.CEILING);
+        long userId = 111;
+        int receiverNumber = 2;
+
+        SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
+
+        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
+
+        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+
+        cropsService.divideCrops(seedingRequest, seeding);
+
+        long user2 = 444;
+
+        mockMvc.perform(put("/api/harvest/" + seeding.getToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-USER-ID", user2)
+                .header("X-ROOM-ID", roomId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code").value("0000"))
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("body.userId").value(user2))
+                .andExpect(jsonPath("body.receiveAmount").value(Matchers.greaterThan(0.0)));
+    }
+
+    @Test
+    void request_crops_return_money_fail() throws Exception {
+        String roomId ="123";
+        BigDecimal amount = BigDecimal.valueOf(1000).setScale(2, RoundingMode.CEILING);
+        long userId = 111;
+        int receiverNumber = 2;
+
+        SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
+
+        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
+
+        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+
+        cropsService.divideCrops(seedingRequest, seeding);
+
+        // 같은 유저가 수령하려 했을 때 오류 발생해야함
+        mockMvc.perform(put("/api/harvest/" + seeding.getToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-USER-ID", userId)
+                .header("X-ROOM-ID", roomId))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value("2000"))
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("body").isString());
+    }
+
+
+    @Test
+    void request_inquire_success() throws Exception {
+
+        String roomId ="123";
+        BigDecimal amount = BigDecimal.valueOf(1000).setScale(2, RoundingMode.CEILING);
+        long userId = 111;
+        int receiverNumber = 2;
+
+        SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
+
+        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
+
+        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+
+        cropsService.divideCrops(seedingRequest, seeding);
+
+
+        // 1 회 수확
+        long user2 = 222;
+        Crops crops = cropsService.harvesting(seeding, user2);
+
+        // 모든 정보 조회
+        mockMvc.perform(get("/api/inquire/" + seeding.getToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-USER-ID", userId)
+                .header("X-ROOM-ID", roomId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code").value("0000"))
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("body.userId").value(userId))
+                .andExpect(jsonPath("body.roomId").value(seedingSession.getRoomId()))
+                .andExpect(jsonPath("body.totalAmount").value(Matchers.comparesEqualTo(amount.doubleValue())))
+                .andExpect(jsonPath("body.usingAmount").value(crops.getReceiveAmount()))
+                .andExpect(jsonPath("body.cropsList" , hasSize(1)));
+    }
+
+
+    @Test
+    void request_inquire_invalid_user_fail() throws Exception {
+
+        String roomId ="123";
+        BigDecimal amount = BigDecimal.valueOf(1000).setScale(2, RoundingMode.CEILING);
+        long userId = 111;
+        int receiverNumber = 2;
+
+        SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
+
+        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
+
+        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+
+        cropsService.divideCrops(seedingRequest, seeding);
+
+
+        // 모든 정보 조회
+        mockMvc.perform(get("/api/inquire/" + seeding.getToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-USER-ID", "333")
+                .header("X-ROOM-ID", roomId))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value("2000"));
+    }
 
 }
