@@ -1,5 +1,7 @@
 package com.kakaopay.seedingmoeny.util;
 
+import com.kakaopay.seedingmoeny.domain.Token;
+import com.kakaopay.seedingmoeny.service.TokenService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,14 +10,14 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class TokenGeneratorTest {
+class TokenServiceTest {
 
     @Autowired
-    TokenGenerator tokenGenerator;
+    TokenService tokenService;
 
     @Test
     void createToken() {
-        String token = tokenGenerator.createToken();
-        Assertions.assertThat(token.length()).isEqualTo(3);
+        Token token = tokenService.createToken();
+        Assertions.assertThat(token.getValue().length()).isEqualTo(3);
     }
 }
