@@ -70,7 +70,88 @@ API를 호출한 사용자에게 할당하고, 그 금액을 응답값으로 내
 ![테스트결과_0001](img/test_0001.png)
 
 
-# 5. API
+## 5. API
 
+### 5.1. 뿌리기API
+#### Request
+~~~
+request(POST) : http://localhost:8080/api/seeding
+header : {
+    Content-Type : application/json,
+    X-ROOM-ID : TEST,
+    X-USER-ID : 123
+}
+body : {
+    "amount": 1000,
+    "receiverNumber" : 3
+}
+~~~
 
+#### Response
+~~~
+{
+    "code": "0000",
+    "message": "정상",
+    "body": {
+        "token": "z6c",
+        "issuedAt": "2020-11-23T00:20:29.03451"
+    }
+}
+~~~
 
+### 5.2. 받기API
+#### Request
+~~~
+request(PUT) : http://localhost:8080/api/harvest/z6c
+header : {
+    Content-Type : application/json,
+    X-ROOM-ID : TEST,
+    X-USER-ID : 1231
+}
+~~~
+
+#### Response
+~~~
+{
+    "code": "0000",
+    "message": "정상",
+    "body": {
+        "userId": 1231,
+        "receiveAmount": 460.23,
+        "harvestAt": "2020-11-23T00:23:22.860843"
+    }
+}
+~~~
+
+### 5.3. 받기API
+#### Request
+~~~
+request(GET) : http://localhost:8080/api/inquire/z6c
+header : {
+    Content-Type : application/json,
+    X-ROOM-ID : TEST,
+    X-USER-ID : 1231
+}
+~~~
+
+#### Response
+~~~
+{
+    "code": "0000",
+    "message": "정상",
+    "body": {
+        "userId": 123,
+        "roomId": "TEST1",
+        "totalAmount": 1000.00,
+        "usingAmount": 460.23,
+        "seedingAt": "2020-11-23T00:20:28.948978",
+        "cropsList": [
+            {
+                "userId": 1231,
+                "receiveAmount": 460.23,
+                "harvestAt": "2020-11-23T00:23:22.860843"
+            }
+        ]
+    }
+}
+~~~
