@@ -29,7 +29,11 @@ public class SeedingSessionService {
         );
     }
 
-
+    /**
+     * 방의 고유 아이디를 기준으로 세션을 가져옵니다
+     * @param roomId 방의 고유 아이디
+     * @return 소속된 세션
+     */
     @Transactional(readOnly = true)
     public SeedingSession getSeedingSession(String roomId) {
         return sessionRepository.findById(roomId).orElseThrow(InvalidAccessException::new);

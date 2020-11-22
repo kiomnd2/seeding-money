@@ -6,24 +6,22 @@ import com.kakaopay.seedingmoeny.domain.SeedingSession;
 import com.kakaopay.seedingmoeny.domain.enums.SeedingStatus;
 import com.kakaopay.seedingmoeny.exception.DuplicateCropsException;
 import com.kakaopay.seedingmoeny.exception.ExpiredCropsException;
-import com.kakaopay.seedingmoeny.exception.InvalidAccessException;
 import com.kakaopay.seedingmoeny.exception.NothingMoneyException;
 import com.kakaopay.seedingmoeny.repository.CropsRepository;
 import com.kakaopay.seedingmoeny.repository.SeedingRepository;
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Description;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
@@ -45,7 +43,7 @@ class CropsServiceTest {
     @Autowired
     SeedingRepository seedingRepository;
 
-
+    @DisplayName("뿌리기한 금액을 받고, 제대로 받았는지 체크합니다.")
     @Test
     void harvestingTest() {
         String roomId ="123";
@@ -65,10 +63,11 @@ class CropsServiceTest {
 
         assertThat(harvesting.getReceiveUserId()).isEqualTo(userId);
         assertThat(harvesting.isReceived()).isEqualTo(true);
-        assertThat(harvesting.getReceiveAmount()).isGreaterThan(BigDecimal.ONE);
+        assertThat(harvesting.getReceiveAmount()).isGreaterThan(BigDecimal.ZERO);
     }
 
 
+    @DisplayName("뿌리기당 한사용자는 한번만 받을 수 있습니다 ( 같은 아이디 중복 요청 실패 )")
     @Test
     void harvestingDuplicateCropsExceptionTest() {
         String roomId ="123";
@@ -84,7 +83,7 @@ class CropsServiceTest {
 
         cropsService.divideCrops(seedingRequest, seeding);
 
-        Crops harvesting = cropsService.harvesting(seeding, userId);
+        cropsService.harvesting(seeding, userId);
 
         // 같은 아이디가 중복으로요창
         assertThat( assertThatExceptionOfType(DuplicateCropsException.class).isThrownBy(() ->
@@ -92,6 +91,7 @@ class CropsServiceTest {
     }
 
 
+    @DisplayName("남은 돈 없을 경우")
     @Test
     void harvestingNothingMoneyExceptionTest() {
         String roomId ="123";
@@ -120,13 +120,14 @@ class CropsServiceTest {
                 cropsService.harvesting(seeding, user3)));
     }
 
+    @DisplayName("뿌린 건은 10분간만 유효합니다. 뿌린지 10분이 지난 요청에 대해서는 받기 실패 응답이 내려가야 합니다")
     @Test
     void harvestingExpireCropsExceptionTest() {
         String roomId ="123";
+        String token = "asd";
         BigDecimal amount = BigDecimal.valueOf(1000).setScale(2, RoundingMode.CEILING);
         long userId = 111;
         int receiverNumber = 2;
-        String token = "ddd";
 
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 

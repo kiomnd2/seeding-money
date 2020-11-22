@@ -1,18 +1,16 @@
 package com.kakaopay.seedingmoeny.util;
 
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+import lombok.experimental.UtilityClass;
 
 import java.util.Random;
 
-@Component
+@UtilityClass
 public class TokenGenerator {
 
 
-    public String createToken() {
+    public static String createToken() {
         return generateRandomWord();
     }
-
 
     /**
      * 토큰 값을로 사용할 단어를 생성합니다.

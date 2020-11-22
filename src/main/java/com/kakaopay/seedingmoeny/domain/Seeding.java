@@ -2,6 +2,9 @@ package com.kakaopay.seedingmoeny.domain;
 
 
 import com.kakaopay.seedingmoeny.domain.enums.SeedingStatus;
+import com.kakaopay.seedingmoeny.dto.CropsDto;
+import com.kakaopay.seedingmoeny.dto.InquireDto;
+import com.kakaopay.seedingmoeny.dto.SeedingDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,6 +54,7 @@ public class Seeding {
     /**
      * 현재 뿌리기 상태
      */
+    @Enumerated(EnumType.STRING)
     @Column(name = "seeding_status")
     private SeedingStatus status;
 
@@ -60,7 +64,10 @@ public class Seeding {
     @Column(name = "seeding_at")
     private LocalDateTime seedingAt;
 
-    @OneToMany(mappedBy = "seeding")
+    /**
+     * 돈을 할당할 리스트
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "seeding")
     private List<Crops> crops;
 
     @Builder
@@ -74,6 +81,11 @@ public class Seeding {
     }
 
 
+    /**
+     * 해당 사용자가 해당 뿌리기 주최자 인지 판단합니다
+     * @param userId 사용자 아이디
+     * @return 주최자인지 아닌지
+     */
     public boolean isOwner(long userId) {
         return this.userId == userId;
     }
@@ -84,7 +96,7 @@ public class Seeding {
      * @return 만료 여부
      */
     public boolean isExpired() {
-        return status.equals(SeedingStatus.EXPIRED) || this.seedingAt.isBefore(LocalDateTime.now().minusMinutes(10));
+        return status.equals(SeedingStatus.EXPIRED) || status.equals(SeedingStatus.FINISHED) || this.seedingAt.isBefore(LocalDateTime.now().minusMinutes(10));
     }
 
     /**
@@ -119,6 +131,29 @@ public class Seeding {
                 .filter(Crops::isReceived)
                 .collect(Collectors.toList());
     }
+
+    public SeedingDto getSeedingDto() {
+        return SeedingDto.builder().token(this.getToken()).issuedAt(LocalDateTime.now()).build();
+    }
+
+    public InquireDto getInquireDto() {
+        // 현재 조회 리스트
+        List<CropsDto> cropsDtos = this.getHarvestedList().stream().map(v -> CropsDto.builder()
+                .userId(v.getReceiveUserId())
+                .receiveAmount(v.getReceiveAmount())
+                .harvestAt(v.getHarvestAt()).build()).collect(Collectors.toList());
+
+        return InquireDto.builder()
+                .userId(this.getUserId())
+                .roomId(seedingSession.getRoomId())
+                .seedingAt(this.getSeedingAt())
+                .cropsList(cropsDtos)
+                .totalAmount(this.getAmount())
+                .usingAmount(this.getUsingAmount())
+                .build();
+    }
+
+
 
 
 }

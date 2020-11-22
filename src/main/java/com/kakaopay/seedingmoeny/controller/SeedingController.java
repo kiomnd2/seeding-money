@@ -36,7 +36,7 @@ public class SeedingController {
      * @param roomId 방의 고유 아이디
      * @param userId 사용자 아이디
      * @param request 요청값 { amount, receiverNumber }
-     * @return
+     * @return 뿌려진 정보
      */
     @PostMapping(value = "/api/seeding", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SeedingResponse<SeedingDto>> seeding(@RequestHeader("X-ROOM-ID") String roomId,
@@ -56,18 +56,17 @@ public class SeedingController {
         // 수령할 금액 분배
         cropsService.divideCrops(request, seeding);
 
-        // 사용자에게 돌려줄 DTO 생성
-        SeedingDto seedingDto = SeedingDto.builder().token(seeding.getToken()).issuedAt(LocalDateTime.now()).build();
+        SeedingDto seedingDto = seeding.getSeedingDto();
 
         return ResponseEntity.ok().body(SeedingResponse.success(seedingDto));
     }
 
     /**
      * 뿌려진 돈을 수확합니다
-     * @param roomId
-     * @param userId
-     * @param token
-     * @return
+     * @param roomId 방의 고유 아이디
+     * @param userId 사용자 아이디
+     * @param token 토큰 값
+     * @return 돈을 수확한 정보
      */
     @PutMapping(value = "/api/harvest/{token}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SeedingResponse<CropsDto>> harvesting(@RequestHeader("X-ROOM-ID") String roomId,
@@ -80,15 +79,18 @@ public class SeedingController {
 
         Crops harvestedCrops = cropsService.harvesting(seeding, userId);
 
-        CropsDto cropsDto = CropsDto.builder()
-                .userId(userId)
-                .harvestAt(harvestedCrops.getHarvestAt())
-                .receiveAmount(harvestedCrops.getReceiveAmount())
-                .build();
+        CropsDto cropsDto = harvestedCrops.getCropsDto(userId);
 
         return ResponseEntity.ok().body(SeedingResponse.success(cropsDto));
     }
 
+    /**
+     * 현재 뿌리기 정보에 대한 조회를 진행합니다.
+     * @param roomId 방유 고유 아이디
+     * @param userId 사용자 아아디
+     * @param token 토큰 값
+     * @return 조회 정보
+     */
     @GetMapping(value = "/api/inquire/{token}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SeedingResponse<InquireDto>> inquire(@RequestHeader("X-ROOM-ID") String roomId,
                                                                @RequestHeader("X-USER-ID") long userId,
@@ -100,25 +102,8 @@ public class SeedingController {
         // 정합성 검사
         Seeding seeding = seedingService.checkInquire(userId, seedingSession, token);
 
-        // 현재 조회 리스트
-        List<CropsDto> cropsDtos = seeding.getHarvestedList().stream().map(v -> CropsDto.builder()
-                .userId(v.getReceiveUserId())
-                .receiveAmount(v.getReceiveAmount())
-                .harvestAt(v.getHarvestAt()).build()).collect(Collectors.toList());
-
-
-        InquireDto inquireDto = InquireDto.builder()
-                .userId(seeding.getUserId())
-                .roomId(seedingSession.getRoomId())
-                .seedingAt(seeding.getSeedingAt())
-                .cropsList(cropsDtos)
-                .totalAmount(seeding.getAmount())
-                .usingAmount(seeding.getUsingAmount())
-                .build();
-
+        InquireDto inquireDto = seeding.getInquireDto();
 
         return ResponseEntity.ok().body(SeedingResponse.success(inquireDto));
     }
-
-
 }

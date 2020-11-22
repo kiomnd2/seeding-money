@@ -1,11 +1,10 @@
 package com.kakaopay.seedingmoeny.domain;
 
+import com.kakaopay.seedingmoeny.dto.CropsDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -64,10 +63,22 @@ public class Crops {
     }
 
 
+    /**
+     * 사용자에게 뿌려진 돈을 할당합니다
+     * @param userId 사용자 아이디
+     */
     public void assign(long userId) {
         this.receiveUserId = userId;
         this.harvestAt = LocalDateTime.now();
         this.received = true;
+    }
+
+    public CropsDto getCropsDto(long userId) {
+        return CropsDto.builder()
+                .userId(userId)
+                .harvestAt(this.getHarvestAt())
+                .receiveAmount(this.getReceiveAmount())
+                .build();
     }
 
 }

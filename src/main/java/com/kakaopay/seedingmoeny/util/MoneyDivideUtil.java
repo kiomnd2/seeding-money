@@ -1,7 +1,7 @@
 package com.kakaopay.seedingmoeny.util;
 
 import com.kakaopay.seedingmoeny.controller.SeedingRequest;
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Component
+@UtilityClass
 public class MoneyDivideUtil {
 
     /**
@@ -18,7 +18,7 @@ public class MoneyDivideUtil {
      * @param request 계산을 위한 사람수, 돈의 양
      * @return 돈을 나눈 리스트
      */
-    public List<BigDecimal> divide(SeedingRequest request) {
+    public static List<BigDecimal> divide(SeedingRequest request) {
         ArrayList<BigDecimal> list = new ArrayList<>();
         Random random = new Random();
 

@@ -41,5 +41,11 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(SeedingResponse.fail(e.getMessage()));
     }
 
+    @ExceptionHandler(ExpiredSearchDateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<SeedingResponse<String>> validate(ExpiredSearchDateException e) {
+        return ResponseEntity.badRequest().body(SeedingResponse.fail(e.getMessage()));
+    }
+
 
 }
