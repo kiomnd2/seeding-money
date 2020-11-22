@@ -53,7 +53,7 @@ public class SeedingController {
         // 뿌리기 정보 생성
         Seeding seeding = seedingService.seeding(userId, seedingSession, request);
 
-        // 수령할 금액 분배
+        // 받을 금액 분배
         cropsService.divideCrops(request, seeding);
 
         SeedingDto seedingDto = seeding.getSeedingDto();
@@ -75,8 +75,10 @@ public class SeedingController {
         // 사용자, 세션, 토큰에 대한 정합성검사
         SeedingSession seedingSession = seedingSessionService.getSeedingSession(roomId);
 
+        // 정합성 검사
         Seeding seeding = seedingService.checkSeeding(userId, seedingSession, token);
 
+        // 받기 서비스 호출
         Crops harvestedCrops = cropsService.harvesting(seeding, userId);
 
         CropsDto cropsDto = harvestedCrops.getCropsDto(userId);
