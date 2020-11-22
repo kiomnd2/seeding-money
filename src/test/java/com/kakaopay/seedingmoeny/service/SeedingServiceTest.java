@@ -43,6 +43,7 @@ class SeedingServiceTest {
     @Autowired
     SeedingSessionService seedingSessionService;
 
+    @DisplayName("돈을 뿌리고 그 정합성을 테스트")
     @Test
     void seedingTest() {
         String roomId ="123";
