@@ -4,10 +4,7 @@ import com.kakaopay.seedingmoeny.controller.SeedingRequest;
 import com.kakaopay.seedingmoeny.domain.Seeding;
 import com.kakaopay.seedingmoeny.domain.SeedingSession;
 import com.kakaopay.seedingmoeny.domain.enums.SeedingStatus;
-import com.kakaopay.seedingmoeny.exception.ExpiredCropsException;
-import com.kakaopay.seedingmoeny.exception.ExpiredSearchDateException;
-import com.kakaopay.seedingmoeny.exception.InvalidAccessException;
-import com.kakaopay.seedingmoeny.exception.SelfCropsMoneyException;
+import com.kakaopay.seedingmoeny.exception.*;
 import com.kakaopay.seedingmoeny.repository.SeedingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +36,11 @@ public class SeedingService {
 
         // 토큰 생성
         String token = createToken();
+
+        // 만약 같은 방에 같은 토큰이 생성되었을 경우 체크
+        if (seedingRepository.existsBySeedingSessionAndToken(seedingSession, token)) {
+            throw new RequestFailedException();
+        }
 
         Seeding seeding = Seeding.builder()
                 .token(token)

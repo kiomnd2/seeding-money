@@ -228,7 +228,7 @@ class SeedingControllerTest {
                 .andExpect(jsonPath("body.userId").value(userId))
                 .andExpect(jsonPath("body.roomId").value(seedingSession.getRoomId()))
                 .andExpect(jsonPath("body.totalAmount").value(Matchers.comparesEqualTo(amount.doubleValue())))
-                .andExpect(jsonPath("body.usingAmount").value(crops.getReceiveAmount()))
+                .andExpect(jsonPath("body.usingAmount").value(crops.getReceiveAmount().doubleValue()))
                 .andExpect(jsonPath("body.cropsList" , hasSize(1)));
     }
 

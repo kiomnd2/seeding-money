@@ -13,6 +13,7 @@ import java.util.Random;
 @UtilityClass
 public class MoneyDivideUtil {
 
+    private static final double COEFFICIENT = 0.5;
     /**
      * 금액을 분배하여 리스트로 리턴합니다.
      * @param request 계산을 위한 사람수, 돈의 양
@@ -32,8 +33,8 @@ public class MoneyDivideUtil {
                 list.add(amount);
                 break;
             }
-            temp = amount.multiply(BigDecimal.valueOf(random.nextDouble()*0.4).abs()).setScale(2, RoundingMode.CEILING);
-            BigDecimal s = amount.subtract(temp , MathContext.DECIMAL32);
+            temp = amount.multiply(BigDecimal.valueOf(random.nextDouble()*COEFFICIENT).abs()).setScale(2, RoundingMode.CEILING);
+            BigDecimal s = amount.subtract(temp ,MathContext.DECIMAL32);
             list.add(temp);
             amount = s;
         }
