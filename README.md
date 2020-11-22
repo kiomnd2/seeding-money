@@ -130,7 +130,7 @@ request(GET) : http://localhost:8080/api/inquire/z6c
 header : {
     Content-Type : application/json,
     X-ROOM-ID : TEST,
-    X-USER-ID : 1231
+    X-USER-ID : 123
 }
 ~~~
 
