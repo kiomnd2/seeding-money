@@ -48,18 +48,10 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(SeedingResponse.fail(e.getMessage()));
     }
 
-    @ExceptionHandler(RequestFailedException.class)
+    @ExceptionHandler({RequestFailedException.class, ObjectOptimisticLockingFailureException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<SeedingResponse<String>> validate(RequestFailedException e) {
         return ResponseEntity.badRequest().body(SeedingResponse.fail(e.getMessage()));
     }
-
-
-    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<SeedingResponse<String>> validate(ObjectOptimisticLockingFailureException e) {
-        return ResponseEntity.badRequest().body(SeedingResponse.fail("요청에 실패했습니다. 다시 시도해주시기 바랍니다."));
-    }
-
 
 }
