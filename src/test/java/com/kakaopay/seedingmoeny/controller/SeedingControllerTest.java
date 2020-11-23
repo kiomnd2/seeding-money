@@ -147,8 +147,6 @@ class SeedingControllerTest {
 
         Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
 
-        cropsService.divideCrops(seedingRequest, seeding);
-
         long anotherUser = 444;
 
         mockMvc.perform(put("/api/harvest/" + seeding.getToken())
@@ -175,8 +173,6 @@ class SeedingControllerTest {
 
         Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
 
-        cropsService.divideCrops(seedingRequest, seeding);
-
         // 같은 유저가 수령하려 했을 때 오류 발생해야함
         mockMvc.perform(put("/api/harvest/" + seeding.getToken())
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -202,8 +198,6 @@ class SeedingControllerTest {
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
         Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
-
-        cropsService.divideCrops(seedingRequest, seeding);
 
 
         // 1 회 수확
@@ -238,8 +232,6 @@ class SeedingControllerTest {
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
         Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
-
-        cropsService.divideCrops(seedingRequest, seeding);
 
         long anotherUser = 333;
         // 모든 정보 조회
@@ -278,8 +270,6 @@ class SeedingControllerTest {
                 .status(SeedingStatus.CREATED)
                 .build();
         seedingRepository.save(seeding);
-
-        cropsService.divideCrops(seedingRequest, seeding);
 
         // 모든 정보 조회
         mockMvc.perform(get("/api/inquire/" + seeding.getToken())
