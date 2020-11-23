@@ -53,5 +53,4 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity<SeedingResponse<String>> validate(RequestFailedException e) {
         return ResponseEntity.badRequest().body(SeedingResponse.fail(e.getMessage()));
     }
-
 }
