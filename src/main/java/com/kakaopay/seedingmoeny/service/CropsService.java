@@ -36,7 +36,6 @@ public class CropsService {
         }
 
         List<Crops> cropsList = cropsRepository.findAllBySeedingAndReceived(seeding, false);
-
         // 현재 남은 잔액이 없다면
         Crops crops = cropsList.stream().findFirst().orElseThrow(NothingMoneyException::new);
 

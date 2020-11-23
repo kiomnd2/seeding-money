@@ -67,8 +67,16 @@ API를 호출한 사용자에게 할당하고, 그 금액을 응답값으로 내
 
 
 ## 4. 테스트
+###4.1 테스트 결과
+
 ![테스트결과_0001](img/test_0001.png)
 
+
+### 4.2 동시성 테스트
+* jmeter 로 테스트
+* thread : 10 동시 요청시, ObjectOptimisticLockingFailureException 발생
+
+![테스트결과_0002](img/test_0002.png)
 
 ## 5. API
 
