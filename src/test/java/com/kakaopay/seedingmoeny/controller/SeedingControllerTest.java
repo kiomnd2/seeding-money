@@ -145,9 +145,7 @@ class SeedingControllerTest {
 
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
-
-        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+        Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
 
         cropsService.divideCrops(seedingRequest, seeding);
 
@@ -175,9 +173,7 @@ class SeedingControllerTest {
 
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
-
-        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+        Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
 
         cropsService.divideCrops(seedingRequest, seeding);
 
@@ -205,9 +201,7 @@ class SeedingControllerTest {
 
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
-
-        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+        Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
 
         cropsService.divideCrops(seedingRequest, seeding);
 
@@ -226,7 +220,7 @@ class SeedingControllerTest {
                 .andExpect(jsonPath("code").value(Codes.S0000.code))
                 .andExpect(jsonPath("message").exists())
                 .andExpect(jsonPath("body.userId").value(userId))
-                .andExpect(jsonPath("body.roomId").value(seedingSession.getRoomId()))
+                .andExpect(jsonPath("body.roomId").value(roomId))
                 .andExpect(jsonPath("body.totalAmount").value(Matchers.comparesEqualTo(amount.doubleValue())))
                 .andExpect(jsonPath("body.usingAmount").value(crops.getReceiveAmount().doubleValue()))
                 .andExpect(jsonPath("body.cropsList" , hasSize(1)));
@@ -243,9 +237,7 @@ class SeedingControllerTest {
 
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
-
-        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+        Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
 
         cropsService.divideCrops(seedingRequest, seeding);
 

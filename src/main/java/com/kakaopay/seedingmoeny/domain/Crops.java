@@ -73,9 +73,9 @@ public class Crops {
         this.received = true;
     }
 
-    public CropsDto getCropsDto(long userId) {
+    public CropsDto getCropsDto() {
         return CropsDto.builder()
-                .userId(userId)
+                .userId(receiveUserId)
                 .harvestAt(this.getHarvestAt())
                 .receiveAmount(this.getReceiveAmount())
                 .build();

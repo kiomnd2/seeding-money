@@ -1,6 +1,7 @@
 package com.kakaopay.seedingmoeny.service;
 
 import com.kakaopay.seedingmoeny.controller.SeedingRequest;
+import com.kakaopay.seedingmoeny.domain.Crops;
 import com.kakaopay.seedingmoeny.domain.Seeding;
 import com.kakaopay.seedingmoeny.domain.SeedingSession;
 import com.kakaopay.seedingmoeny.domain.enums.SeedingStatus;
@@ -23,16 +24,22 @@ public class SeedingService {
 
     private final SeedingRepository seedingRepository;
 
+    private final CropsService cropsService;
+
+    private final SeedingSessionService seedingSessionService;
 
     /**
      * 현재 세션에 뿌리기를 실행합니다
      * @param userId 사용자 아이디
-     * @param seedingSession 현재 소속된 세션
+     * @param roomId  현재 소속된 세션
      * @param request 요청 값 { amount ,requestNumber }
      * @return 뿌리기 정보
      */
     @Transactional
-    public Seeding seeding(long userId, SeedingSession seedingSession, SeedingRequest request) {
+    public Seeding seeding(long userId, String roomId, SeedingRequest request) {
+
+        // 최초 뿌리기 세션정보를 가져옴
+        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
 
         // 토큰 생성
         String token = createToken();
@@ -51,18 +58,35 @@ public class SeedingService {
                 .status(SeedingStatus.CREATED)
                 .build();
 
+        // 받을 금액 분배
+        cropsService.divideCrops(request, seeding);
+
         return seedingRepository.save(seeding);
     }
 
 
+    public Crops harvest(long userId, String roomId, String token) {
+        // 사용자, 세션, 토큰에 대한 정합성검사
+        SeedingSession seedingSession = seedingSessionService.getSeedingSession(roomId);
+
+        // 정합성 검사
+        Seeding seeding = checkSeeding(userId, seedingSession, token);
+
+        // 받기 서비스 호출
+        return cropsService.harvesting(seeding, userId);
+
+    }
+
     /**
      * 조회 기준을 체크 합니다
      * @param userId 사용자 아이디
-     * @param seedingSession 소속된 세션
+     * @param roomId 소속된 세션
      * @param token 토큰 값
      * @return 검증된 뿌리기 정보
      */
-    public Seeding checkInquire(long userId, SeedingSession seedingSession, String token) {
+    public Seeding inquire(long userId, String roomId, String token) {
+
+        SeedingSession seedingSession = seedingSessionService.getSeedingSession(roomId);
 
         Seeding seeding = getSeeding(seedingSession, token);
 
@@ -85,7 +109,7 @@ public class SeedingService {
      * @return 정합성이 검증된 뿌리기 정보
      */
     @Transactional(readOnly = true)
-    public Seeding checkSeeding(long userId, SeedingSession seedingSession, String token) {
+    protected Seeding checkSeeding(long userId, SeedingSession seedingSession, String token) {
 
         Seeding seeding = getSeeding(seedingSession, token);
 

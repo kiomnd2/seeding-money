@@ -53,9 +53,7 @@ class CropsServiceTest {
 
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
-
-        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+        Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
 
         cropsService.divideCrops(seedingRequest, seeding);
 
@@ -77,9 +75,7 @@ class CropsServiceTest {
 
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
-
-        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+        Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
 
         cropsService.divideCrops(seedingRequest, seeding);
 
@@ -101,11 +97,7 @@ class CropsServiceTest {
 
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
-
-        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
-
-        cropsService.divideCrops(seedingRequest, seeding);
+        Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
 
         cropsService.harvesting(seeding, userId);
 
@@ -115,7 +107,7 @@ class CropsServiceTest {
 
         cropsService.harvesting(seeding, user2);
 
-        // 같은 아이디가 중복으로요창
+        // 마감 체크
         assertThat( assertThatExceptionOfType(NothingMoneyException.class).isThrownBy(() ->
                 cropsService.harvesting(seeding, user3)));
     }

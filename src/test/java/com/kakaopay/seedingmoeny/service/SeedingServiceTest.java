@@ -53,9 +53,10 @@ class SeedingServiceTest {
 
         SeedingRequest seedingRequest = new SeedingRequest(amount ,receiverNumber);
 
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
 
-        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+        Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
+
+        SeedingSession seedingSession = seedingSessionService.getSeedingSession(roomId);
 
         String token = seeding.getToken();
 
@@ -121,11 +122,9 @@ class SeedingServiceTest {
         // 토큰 생성
 
         String token = createToken();
-        // 세션 생성
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
 
         // 뿌리기 정보 생성
-        Seeding seeding = seedingService.seeding(userId, seedingSession, seedingRequest);
+        Seeding seeding = seedingService.seeding(userId, roomId, seedingRequest);
 
         // 체크
         // 자기가 뿌린돈은 자기가 받을 수 없다
@@ -146,11 +145,8 @@ class SeedingServiceTest {
         // 토큰 생성
 
         String token = createToken();
-        // 세션 생성
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
-
         // 뿌리기 정보 생성
-        seedingService.seeding(userId, seedingSession, seedingRequest);
+        seedingService.seeding(userId, roomId, seedingRequest);
 
 
         // 다른 유저, 이상한 세션정보
@@ -175,11 +171,8 @@ class SeedingServiceTest {
         // 토큰 생성
 
         String token = createToken();
-        // 세션 생성
-        SeedingSession seedingSession = seedingSessionService.createSeedingSession(roomId);
-
         // 뿌리기 정보 생성
-        seedingService.seeding(userId, seedingSession, seedingRequest);
+        seedingService.seeding(userId, roomId, seedingRequest);
 
 
         // 다른 유저, 이상한 세션정보
