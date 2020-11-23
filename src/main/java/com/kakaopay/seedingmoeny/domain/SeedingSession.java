@@ -28,7 +28,7 @@ public class SeedingSession {
     private LocalDateTime createdAt;
 
     @Builder
-    public SeedingSession(String roomId, LocalDateTime createdAt) {
+    protected SeedingSession(String roomId, LocalDateTime createdAt) {
         this.roomId = roomId;
         this.createdAt = createdAt;
     }

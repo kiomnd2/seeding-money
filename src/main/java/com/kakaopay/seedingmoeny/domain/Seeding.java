@@ -71,7 +71,7 @@ public class Seeding {
     private List<Crops> crops;
 
     @Builder
-    public Seeding(String token, long userId, SeedingSession seedingSession, BigDecimal amount, SeedingStatus status, LocalDateTime seedingAt) {
+    protected Seeding(String token, long userId, SeedingSession seedingSession, BigDecimal amount, SeedingStatus status, LocalDateTime seedingAt) {
         this.token = token;
         this.userId = userId;
         this.seedingSession = seedingSession;

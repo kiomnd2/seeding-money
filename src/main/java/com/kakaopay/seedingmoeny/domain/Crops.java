@@ -54,7 +54,7 @@ public class Crops {
     private int version;
 
     @Builder
-    public Crops(Seeding seeding, long receivedUserId, BigDecimal receiveAmount, boolean received, LocalDateTime harvestAt) {
+    protected Crops(Seeding seeding, long receivedUserId, BigDecimal receiveAmount, boolean received, LocalDateTime harvestAt) {
         this.seeding = seeding;
         this.receiveUserId = receivedUserId;
         this.receiveAmount = receiveAmount;
